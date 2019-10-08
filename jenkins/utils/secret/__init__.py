@@ -51,8 +51,6 @@ class Secret(object):
 
         :param master_key: jenkins master key
         :param hudson_secret_key: hudson secret key
-        :raises AssertionError:
-            - if MAGIC was not found in processed data
         """
         hashed_master_key = hashlib.sha256(master_key).digest()[:BLOCK_SIZE]
         cipher = AES.new(hashed_master_key, AES.MODE_ECB)
@@ -61,7 +59,6 @@ class Secret(object):
         hudson_secret_key = pad(hudson_secret_key, BLOCK_SIZE)
 
         result = cipher.decrypt(hudson_secret_key)
-        assert MAGIC in result
 
         key = result[:-16]
         self.cipher_key = key[:16]
