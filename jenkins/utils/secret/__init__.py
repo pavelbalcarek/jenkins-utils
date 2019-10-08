@@ -10,7 +10,7 @@ import os
 import hashlib
 from struct import unpack, pack
 
-from ... compat import AES
+from ... compat import AES, pad
 
 #: default jenkins magic
 MAGIC = b'::::MAGIC::::'
@@ -56,6 +56,10 @@ class Secret(object):
         """
         hashed_master_key = hashlib.sha256(master_key).digest()[:BLOCK_SIZE]
         cipher = AES.new(hashed_master_key, AES.MODE_ECB)
+
+        #: for ecb mode data has to be padded (len(hudson_secret_key) modulo BLOCK_SIZE == 0)
+        hudson_secret_key = pad(hudson_secret_key, BLOCK_SIZE)
+
         result = cipher.decrypt(hudson_secret_key)
         assert MAGIC in result
 
